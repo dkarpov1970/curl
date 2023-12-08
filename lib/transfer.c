@@ -432,8 +432,13 @@ static CURLcode readwrite_data(struct Curl_easy *data,
   size_t blen;
   size_t consumed;
   int maxloops = 100;
+
+  /* Let's do only one read from the socket when we have a speed limit
+     and read more data later. This will allow to better calculate wait
+     times and do speed limitation more precise and consistent for
+     different socket buffer sizes. */
   curl_off_t max_recv = data->set.max_recv_speed?
-                        data->set.max_recv_speed : CURL_OFF_T_MAX;
+                        0 : CURL_OFF_T_MAX;
   bool data_eof_handled = FALSE;
 
   DEBUGASSERT(data->state.buffer);
