@@ -1229,7 +1229,7 @@ struct CookieInfo *Curl_cookie_init(struct Curl_easy *data,
 
   if(data) {
     FILE *fp = NULL;
-    if(file) {
+    if(file && *file) {
       if(!strcmp(file, "-"))
         fp = stdin;
       else {
