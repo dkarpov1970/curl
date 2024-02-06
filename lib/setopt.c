@@ -670,6 +670,7 @@ CURLcode Curl_vsetopt(struct Curl_easy *data, CURLoption option, va_list param)
     data->set.opt_no_body = FALSE; /* this is implied */
     Curl_mime_cleanpart(data->state.formp);
     Curl_safefree(data->state.formp);
+    data->state.mimepost = NULL;
     break;
 #endif
 
@@ -977,6 +978,7 @@ CURLcode Curl_vsetopt(struct Curl_easy *data, CURLoption option, va_list param)
 #ifndef CURL_DISABLE_FORM_API
       Curl_mime_cleanpart(data->state.formp);
       Curl_safefree(data->state.formp);
+      data->state.mimepost = NULL;
 #endif
     }
     break;
