@@ -120,7 +120,7 @@ struct thread_data {
  */
 #define HAPPY_EYEBALLS_DNS_TIMEOUT 5000
 
-#define CARES_TIMEOUT_PER_ATTEMPT 2000
+#define CARES_TIMEOUT_PER_ATTEMPT 3500
 
 /*
  * Curl_resolver_global_init() - the generic low-level asynchronous name
