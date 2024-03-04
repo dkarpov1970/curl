@@ -98,6 +98,11 @@ enum resolve_t Curl_resolv_timeout(struct Curl_easy *data,
 
 #ifdef ENABLE_IPV6
 /*
+* Global callback probing if IPv6 works on the system.
+*/
+extern curl_ipv6works_callback Curl_ipv6_works;
+
+/*
  * Curl_ipv6works() returns TRUE if IPv6 seems to work.
  */
 bool Curl_ipv6works(struct Curl_easy *data);

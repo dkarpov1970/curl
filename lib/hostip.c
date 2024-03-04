@@ -601,6 +601,25 @@ static struct Curl_addrinfo *get_localhost(int port, const char *name)
 }
 
 #ifdef ENABLE_IPV6
+bool curl_ipv6_check() {
+  /* probe to see if we have a working IPv6 stack */
+  curl_socket_t s = socket(PF_INET6, SOCK_DGRAM, 0);
+  if (s == CURL_SOCKET_BAD) {
+    /* an IPv6 address was requested but we can't get/use one */
+    return FALSE;
+  }
+
+  sclose(s);
+  return TRUE;
+}
+
+CURLipv6 curl_ipv6works() {
+  return CURLIPV6_AUTO;
+}
+
+curl_ipv6works_callback Curl_ipv6_works = 
+  (curl_ipv6works_callback)curl_ipv6works;
+
 /*
  * Curl_ipv6works() returns TRUE if IPv6 seems to work.
  */
@@ -619,17 +638,13 @@ bool Curl_ipv6works(struct Curl_easy *data)
     return data->multi->ipv6_up == IPV6_WORKS;
   }
   else {
-    int ipv6_works = -1;
-    /* probe to see if we have a working IPv6 stack */
-    curl_socket_t s = socket(PF_INET6, SOCK_DGRAM, 0);
-    if(s == CURL_SOCKET_BAD)
-      /* an IPv6 address was requested but we can't get/use one */
-      ipv6_works = 0;
-    else {
-      ipv6_works = 1;
-      sclose(s);
-    }
-    return (ipv6_works>0)?TRUE:FALSE;
+    DEBUGASSERT(Curl_ipv6_works);
+    CURLipv6 curl_ipv6 = Curl_ipv6_works();
+
+    if(curl_ipv6 == CURLIPV6_AUTO)
+      return curl_ipv6_check();
+
+    return (curl_ipv6 == CURLIPV6_YES)?TRUE:FALSE;
   }
 }
 #endif /* ENABLE_IPV6 */

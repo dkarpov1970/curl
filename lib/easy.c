@@ -266,6 +266,46 @@ CURLcode curl_global_init_mem(long flags, curl_malloc_callback m,
   return result;
 }
 
+
+CURLcode curl_global_init_ipv6(long flags,
+                               curl_ipv6works_callback ipv6_works_cb)
+{
+#ifdef ENABLE_IPV6
+  CURLcode result;
+
+  /* Invalid input, return immediately */
+  if(!ipv6_works_cb)
+    return CURLE_FAILED_INIT;
+
+  global_init_lock();
+
+  /* set global IPv6 works check function */
+  Curl_ipv6_works = ipv6_works_cb;
+
+  if(initialized) {
+    /* Already initialized, don't do it again, but bump the variable anyway to
+       work like curl_global_init() and require the same amount of cleanup
+       calls. */
+    initialized++;
+
+    global_init_unlock();
+    return CURLE_OK;
+  }
+
+  /* Call the actual init function */
+  result = global_init(flags, TRUE);
+
+  global_init_unlock();
+
+  return result;
+#else
+  (void)ipv6_works_cb;
+  /* IPv6 not enabled in libcurl. */
+  return curl_global_init(flags);
+#endif
+}
+
+
 /**
  * curl_global_cleanup() globally cleanups curl, uses the value of
  * "easy_init_flags" to determine what needs to be cleaned up and what doesn't.

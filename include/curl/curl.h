@@ -2718,6 +2718,35 @@ CURL_EXTERN CURLcode curl_global_init_mem(long flags,
                                           curl_calloc_callback c);
 
 /*
+ * callback function for checking if IPv6 is enabled on the system or
+ * for the application.
+ *
+ */
+typedef enum {
+  CURLIPV6_NO = 0, /* ipv6 is disabled and shouldn't be used. */
+  CURLIPV6_YES,    /* ipv6 is enabled and can be used. */
+  CURLIPV6_AUTO    /* use default libcurl mechanism to detect if IPv6 works */
+} CURLipv6;
+
+typedef CURLipv6(*curl_ipv6works_callback)();
+
+/*
+ * NAME curl_global_init_ipv6()
+ *
+ * DESCRIPTION
+ *
+ * curl_global_init() or curl_global_init_ipv6() should be invoked exactly once
+ * for each application that uses libcurl.  This function can be used to
+ * initialize libcurl and set user defined callback checking if IPv6 works
+ * on the system.
+ * Users can implement IPv6 checking routines to tell libcurl if it can use
+ * IPv6 in its transfers.
+ */
+
+CURL_EXTERN CURLcode curl_global_init_ipv6(long flags,
+  curl_ipv6works_callback ipv6_works_cb);
+
+/*
  * NAME curl_global_cleanup()
  *
  * DESCRIPTION
