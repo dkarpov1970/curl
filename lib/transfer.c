@@ -495,7 +495,7 @@ static CURLcode readwrite_data(struct Curl_easy *data,
     /* Observe any imposed speed limit */
     if(bytestoread && data->set.max_recv_speed) {
       curl_off_t net_limit = data->set.max_recv_speed - total_received;
-      if(net_limit <= 0)
+      if(net_limit <= 0 || total_received)
         break;
       if((size_t)net_limit < bytestoread)
         bytestoread = (size_t)net_limit;
