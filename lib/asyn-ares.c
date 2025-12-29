@@ -96,7 +96,7 @@
 #define HTTPSRR_WORKS
 #endif
 
-#define CARES_TIMEOUT_PER_ATTEMPT 2000
+#define CARES_TIMEOUT_PER_ATTEMPT 3500
 
 static int ares_ver = 0;
 
