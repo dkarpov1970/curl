@@ -194,6 +194,36 @@ void Curl_failf(struct Curl_easy *data, const char *fmt, ...)
   }
 }
 
+void Curl_reset_fail(struct Curl_easy *data)
+{
+  if(data->set.errorbuffer)
+    data->set.errorbuffer[0] = 0;
+  data->state.errorbuf = FALSE;
+}
+
+#ifdef CURLVERBOSE
+struct curl_trc_feat Curl_trc_feat_multi = {
+  "MULTI",
+  CURL_LOG_LVL_NONE,
+};
+struct curl_trc_feat Curl_trc_feat_read = {
+  "READ",
+  CURL_LOG_LVL_NONE,
+};
+struct curl_trc_feat Curl_trc_feat_write = {
+  "WRITE",
+  CURL_LOG_LVL_NONE,
+};
+struct curl_trc_feat Curl_trc_feat_dns = {
+  "DNS",
+  CURL_LOG_LVL_NONE,
+};
+struct curl_trc_feat Curl_trc_feat_timer = {
+  "TIMER",
+  CURL_LOG_LVL_NONE,
+};
+#endif
+
 #ifndef CURL_DISABLE_VERBOSE_STRINGS
 
 static void trc_infof(struct Curl_easy *data,
