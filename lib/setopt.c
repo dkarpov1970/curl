@@ -49,6 +49,7 @@
 #include "curlx/strdup.h"
 #include "escape.h"
 #include "bufref.h"
+#include "multiif.h"
 
 static CURLcode setopt_set_timeout_sec(timediff_t *ptimeout_ms, long secs)
 {
@@ -1511,6 +1512,10 @@ static CURLcode setopt_pointers(struct Curl_easy *data, CURLoption option,
         Curl_resolv_unlink(data, &data->state.dns[0]);
         Curl_resolv_unlink(data, &data->state.dns[1]);
       }
+
+      /* If data has a connection from this share, detach it. */
+      if(data->share->specifier & (1 << CURL_LOCK_DATA_CONNECT))
+        Curl_detach_connection(data);
 
       data->share->dirty--;
 
