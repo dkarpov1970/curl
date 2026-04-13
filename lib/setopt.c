@@ -347,7 +347,7 @@ CURLcode Curl_setopt_SSLVERSION(struct Curl_easy *data, CURLoption option,
        version_max >= CURL_SSLVERSION_MAX_LAST)
       return CURLE_BAD_FUNCTION_ARGUMENT;
     if(version == CURL_SSLVERSION_DEFAULT)
-      version = CURL_SSLVERSION_TLSv1_2;
+      version = CURL_SSLVERSION_TLSv1_0;
 
     primary->version = (unsigned char)version;
     primary->version_max = (unsigned int)version_max;
