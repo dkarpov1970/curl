@@ -1463,9 +1463,11 @@ static CURLcode cf_socket_send(struct Curl_cfilter *cf, struct Curl_easy *data,
     }
     else {
       char buffer[STRERROR_LEN];
-      failf(data, "Send failure: %s",
-            curlx_strerror(sockerr, buffer, sizeof(buffer)));
-      data->state.os_errno = sockerr;
+      if(data) {
+        failf(data, "Send failure: %s",
+          curlx_strerror(sockerr, buffer, sizeof(buffer)));
+        data->state.os_errno = sockerr;
+      }
       result = CURLE_SEND_ERROR;
     }
   }
@@ -1528,9 +1530,11 @@ static CURLcode cf_socket_recv(struct Curl_cfilter *cf, struct Curl_easy *data,
     }
     else {
       char buffer[STRERROR_LEN];
-      failf(data, "Recv failure: %s",
-            curlx_strerror(sockerr, buffer, sizeof(buffer)));
-      data->state.os_errno = sockerr;
+      if(data) {
+        failf(data, "Recv failure: %s",
+          curlx_strerror(sockerr, buffer, sizeof(buffer)));
+        data->state.os_errno = sockerr;
+      }
       result = CURLE_RECV_ERROR;
     }
   }
