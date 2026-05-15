@@ -548,6 +548,13 @@ static const struct testcase get_parts_list[] ={
 };
 
 static const struct urltestcase get_url_list[] = {
+  {"http://hej./", "http://hej./", 0, 0, CURLUE_OK},
+  {"http://hej../", "", 0, 0, CURLUE_BAD_HOSTNAME},
+  {"http://hej.../", "", 0, 0, CURLUE_BAD_HOSTNAME},
+  {"http://hej..../index.html", "", 0, 0, CURLUE_BAD_HOSTNAME},
+  {"http://.", "", 0, 0, CURLUE_BAD_HOSTNAME},
+  {"http://..", "", 0, 0, CURLUE_BAD_HOSTNAME},
+  {"http://...", "", 0, 0, CURLUE_BAD_HOSTNAME},
   {"018.0.0.0", "http://018.0.0.0/", CURLU_GUESS_SCHEME, 0, CURLUE_OK},
   {"08", "http://08/", CURLU_GUESS_SCHEME, 0, CURLUE_OK},
   {"0", "http://0.0.0.0/", CURLU_GUESS_SCHEME, 0, CURLUE_OK},
