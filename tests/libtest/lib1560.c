@@ -564,6 +564,10 @@ static const struct urltestcase get_url_list[] = {
   {"https://[fe80%3A%3A20c%3A29ff%3Afe9c%3A409b]/",
    "https://[fe80::20c:29ff:fe9c:409b]/", 0, 0, CURLUE_OK },
 
+  {"https://127.1.0x", "https://127.1.0x/", 0, 0, CURLUE_OK},
+  {"https://127.0x", "https://127.0x/", 0, 0, CURLUE_OK},
+  {"https://127.0x.1", "https://127.0x.1/", 0, 0, CURLUE_OK},
+  {"https://127.1.1.0x", "https://127.1.1.0x/", 0, 0, CURLUE_OK},
   {"https://127.1.", "https://127.0.0.1/", 0, 0, CURLUE_OK},
   {"https://127.1.:443", "https://127.0.0.1:443/", 0, 0, CURLUE_OK},
   {"https://127.1.?moo", "https://127.0.0.1/?moo", 0, 0, CURLUE_OK},
