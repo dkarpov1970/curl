@@ -4153,6 +4153,17 @@ static CURLcode http_on_response(struct Curl_easy *data,
     }
   }
 
+  /* final response without error, prepare to receive the body */
+  result = http_firstwrite(data);
+  if(result)
+    goto out;
+
+  /* This is the last response that we get for the current request. Check on
+   * the body size and determine if the response is complete. */
+  result = http_size(data);
+  if(result)
+    goto out;
+
   /* If we requested a "no body", this is a good time to get
    * out and return home.
    */
@@ -4166,15 +4177,6 @@ static CURLcode http_on_response(struct Curl_easy *data,
      close the stream. */
   if((k->maxdownload == 0) && (k->httpversion_sent < 20))
     k->download_done = TRUE;
-
-  /* final response without error, prepare to receive the body */
-  result = http_firstwrite(data);
-
-  if(!result)
-    /* This is the last response that we get for the current request.
-     * Check on the body size and determine if the response is complete.
-     */
-    result = http_size(data);
 
 out:
   if(last_hd) {
