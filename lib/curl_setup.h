@@ -1317,6 +1317,11 @@ extern curl_calloc_callback Curl_ccalloc;
     (ptr) = NULL;          \
   } while(0)
 
+/* Define curlx_safefree for future compatibility as the Curl_safefree
+ * was renamed in 0df6c01db398f5e25d00a062aae56f2a89d8ff55.
+ */
+#define curlx_safefree(ptr) Curl_safefree(ptr)
+
 #include <curl/curl.h> /* for CURL_EXTERN, curl_socket_t, mprintf.h */
 
 #ifdef DEBUGBUILD
