@@ -285,6 +285,7 @@ static void usage_hx_download(const char *msg)
     "  -M number  max concurrent connections to a host\n"
     "  -P number  pause transfer after `number` response bytes\n"
     "  -r <host>:<port>:<addr>  resolve information\n"
+    "  -S         share connections between easy handles\n"
     "  -T number  max concurrent connections total\n"
     "  -V http_version (http/1.1, h2, h3) http version to use\n"
   );
@@ -313,12 +314,13 @@ static CURLcode test_cli_hx_download(const char *URL)
   size_t max_host_conns = 0;
   size_t max_total_conns = 0;
   int fresh_connect = 0;
+  int share_connect = 0;
   char *cafile = NULL;
   CURLcode result = CURLE_OK;
 
   (void)URL;
 
-  while((ch = cgetopt(test_argc, test_argv, "aefhm:n:xA:C:F:M:P:r:T:V:"))
+  while((ch = cgetopt(test_argc, test_argv, "aefhm:n:xA:C:F:M:P:r:ST:V:"))
         != -1) {
     const char *opt = coptarg;
     curl_off_t num;
@@ -370,6 +372,9 @@ static CURLcode test_cli_hx_download(const char *URL)
     case 'r':
       curlx_free(resolve);
       resolve = curlx_strdup(coptarg);
+      break;
+    case 'S':
+      share_connect = 1;
       break;
     case 'T':
       if(!curlx_str_number(&opt, &num, LONG_MAX))
@@ -425,9 +430,8 @@ static CURLcode test_cli_hx_download(const char *URL)
   curl_share_setopt(share, CURLSHOPT_SHARE, CURL_LOCK_DATA_COOKIE);
   curl_share_setopt(share, CURLSHOPT_SHARE, CURL_LOCK_DATA_DNS);
   curl_share_setopt(share, CURLSHOPT_SHARE, CURL_LOCK_DATA_SSL_SESSION);
-#if 0
-  curl_share_setopt(share, CURLSHOPT_SHARE, CURL_LOCK_DATA_CONNECT);
-#endif
+  if(share_connect)
+    curl_share_setopt(share, CURLSHOPT_SHARE, CURL_LOCK_DATA_CONNECT);
   curl_share_setopt(share, CURLSHOPT_SHARE, CURL_LOCK_DATA_PSL);
   curl_share_setopt(share, CURLSHOPT_SHARE, CURL_LOCK_DATA_HSTS);
 
