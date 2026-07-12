@@ -148,6 +148,8 @@ struct async_ares_ctx {
 #ifdef USE_HTTPSRR
   struct Curl_https_rrinfo hinfo;
 #endif
+  BIT(transient_err); /* an A/AAAA query failed without the resolver
+                         answering that the name does not exist */
 };
 
 void Curl_async_ares_shutdown(struct Curl_easy *data);

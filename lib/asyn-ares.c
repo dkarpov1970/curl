@@ -514,9 +514,13 @@ static void async_ares_hostbyname_cb(void *user_data,
     async_addr_concat(&ares->temp_ai,
                       Curl_he2ai(hostent, data->state.async.port));
   }
-  else if(ares->ares_status != ARES_SUCCESS) {
-    /* no success so far, remember last error */
-    ares->ares_status = status;
+  else {
+    if((status != ARES_ENOTFOUND) && (status != ARES_ENODATA))
+      ares->transient_err = TRUE;
+    if(ares->ares_status != ARES_SUCCESS) {
+      /* no success so far, remember last error */
+      ares->ares_status = status;
+    }
   }
 
   ares->num_pending--;
@@ -666,6 +670,9 @@ static void async_ares_addrinfo_cb(void *user_data, int status, int timeouts,
   struct Curl_easy *data = (struct Curl_easy *)user_data;
   struct async_ares_ctx *ares = &data->state.async.ares;
   (void)timeouts;
+  if((status != ARES_SUCCESS) && (status != ARES_ENOTFOUND) &&
+     (status != ARES_ENODATA))
+    ares->transient_err = TRUE;
   if(ares->ares_status != ARES_SUCCESS) /* do not overwrite success */
     ares->ares_status = status;
   if(status == ARES_SUCCESS) {
@@ -737,6 +744,7 @@ CURLcode Curl_async_getaddrinfo(struct Curl_easy *data, const char *hostname,
   /* initial status - failed */
   ares->ares_status = ARES_ENOTFOUND;
   ares->result = CURLE_OK;
+  ares->transient_err = FALSE;
 
 #if defined(CURLVERBOSE) && ARES_VERSION >= 0x011800 /* >= v1.24.0 */
   if(CURL_TRC_DNS_is_verbose(data)) {

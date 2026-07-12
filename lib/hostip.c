@@ -848,6 +848,18 @@ static CURLcode store_negative_resolve(struct Curl_easy *data,
   if(!dnscache)
     return CURLE_FAILED_INIT;
 
+#ifdef CURLRES_ARES
+  /* Only cache the failure when the resolver answered that the name does
+     not exist. Transient failures, e.g. an unreachable or overloaded DNS
+     server, say nothing about the name and would poison the cache for
+     every transfer using it. */
+  if(data->state.async.ares.transient_err) {
+    infof(data, "Not storing negative name resolve for %s:%d after a "
+          "transient failure", host, port);
+    return CURLE_OK;
+  }
+#endif
+
   /* put this new host in the cache */
   dns = dnscache_add_addr(data, dnscache, NULL, host, 0, port, FALSE);
   if(dns) {
@@ -891,6 +903,9 @@ CURLcode Curl_resolv(struct Curl_easy *data,
   CURLcode result = CURLE_COULDNT_RESOLVE_HOST;
 
   *entry = NULL;
+#ifdef CURLRES_ARES
+  data->state.async.ares.transient_err = FALSE; /* set by this resolve */
+#endif
 
 #ifndef CURL_DISABLE_DOH
   data->conn->bits.doh = FALSE; /* default is not */
