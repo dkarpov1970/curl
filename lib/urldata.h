@@ -1619,9 +1619,9 @@ struct Curl_easy {
   uint32_t magic;
   /* once an easy handle is tied to a connection pool a non-negative number to
      distinguish this transfer from other using the same pool. For easier
-     tracking in log output. This may wrap around after LONG_MAX to 0 again,
-     so it has no uniqueness guarantee for large processings. Note: it has no
-     uniqueness either IFF more than one connection pool is used by the
+     tracking in log output. This may wrap around after CURL_OFF_T_MAX to 0
+     again, so it has no uniqueness guarantee for large processings. Note: it
+     has no uniqueness either IFF more than one connection pool is used by the
      libcurl application. */
   curl_off_t id;
   /* once an easy handle is added to a multi, either explicitly by the
