@@ -2002,6 +2002,8 @@ static CURLcode setopt_cptr(struct Curl_easy *data, CURLoption option,
      */
     if(s->str[STRING_AWS_SIGV4])
       s->httpauth = CURLAUTH_AWS_SIGV4;
+    else
+      s->httpauth &= ~(uint32_t)CURLAUTH_AWS_SIGV4;
     break;
 #endif
   case CURLOPT_REFERER:
