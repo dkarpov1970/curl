@@ -1513,9 +1513,12 @@ static CURLcode setopt_pointers(struct Curl_easy *data, CURLoption option,
         Curl_resolv_unlink(data, &data->state.dns[1]);
       }
 
-      /* If data has a connection from this share, detach it. */
-      if(data->share->specifier & (1 << CURL_LOCK_DATA_CONNECT))
+      /* If share caches connections, detach any existing connection and
+       * forget its identifier. */
+      if(data->share->specifier & (1 << CURL_LOCK_DATA_CONNECT)) {
         Curl_detach_connection(data);
+        data->state.lastconnect_id = -1;
+      }
 
       data->share->dirty--;
 
