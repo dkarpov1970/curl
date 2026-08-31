@@ -2136,18 +2136,7 @@ static CURLcode ossl_verifyhost(struct Curl_easy *data,
 
         switch(target) {
         case GEN_DNS: /* name/pattern comparison */
-          /* The OpenSSL man page explicitly says: "In general it cannot be
-             assumed that the data returned by ASN1_STRING_data() is null
-             terminated or does not contain embedded nulls." But also that
-             "The actual format of the data will depend on the actual string
-             type itself: for example for an IA5String the data will be ASCII"
-
-             It has been however verified that in 0.9.6 and 0.9.7, IA5String
-             is always null-terminated.
-          */
-          if((altlen == strlen(altptr)) &&
-             /* if this is not true, there was an embedded zero in the name
-                string and we cannot match it. */
+          if(!memchr(altptr, '\0', altlen) &&
              Curl_cert_hostcheck(altptr, altlen, peer->hostname, hostlen)) {
             matched = TRUE;
             infof(data, "  subjectAltName: \"%s\" matches cert's \"%.*s\"",
