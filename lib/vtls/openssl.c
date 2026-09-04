@@ -2211,7 +2211,7 @@ static CURLcode ossl_verifyhost(struct Curl_easy *data,
 
         if((cnlen <= 0) || !cn)
           result = CURLE_OUT_OF_MEMORY;
-        else if((size_t)cnlen != strlen((char *)cn)) {
+        else if(memchr(cn, '\0', cnlen)) {
           /* there was a terminating zero before the end of string, this
              cannot match and we return failure! */
           failf(data, "SSL: illegal cert name field");
@@ -2229,12 +2229,12 @@ static CURLcode ossl_verifyhost(struct Curl_easy *data,
     }
     else if(!Curl_cert_hostcheck((const char *)cn, cnlen,
                                  peer->hostname, hostlen)) {
-      failf(data, "SSL: certificate subject name '%s' does not match "
-            "target hostname '%s'", cn, peer->dispname);
+      failf(data, "SSL: certificate subject name '%.*s' does not match "
+            "target hostname '%s'", cnlen, cn, peer->dispname);
       result = CURLE_PEER_FAILED_VERIFICATION;
     }
     else {
-      infof(data, " common name: %s (matched)", cn);
+      infof(data, " common name: %.*s (matched)", cnlen, cn);
     }
     if(free_cn)
       OPENSSL_free(cn);
