@@ -1131,8 +1131,9 @@ static CURLcode cookie_load(struct Curl_easy *data, const char *file,
 
         result = Curl_cookie_add(data, ci, headerline, TRUE, lineptr, NULL,
                                  NULL, TRUE);
-        /* File reading cookie failures are not propagated back to the
-           caller because there is no way to do that */
+        /* Ignore individual cookie problems unless we ran out of memory */
+        if(result != CURLE_OUT_OF_MEMORY)
+          result = CURLE_OK;
       }
     } while(!result && !eof);
     curlx_dyn_free(&buf); /* free the line buffer */
