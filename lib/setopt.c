@@ -1535,6 +1535,12 @@ static CURLcode setopt_pointers(struct Curl_easy *data, CURLoption option,
 
       data->share->dirty++;
 
+      /* Forget identifiers from the previously used connection cache. */
+      if(data->share->specifier & (1 << CURL_LOCK_DATA_CONNECT)) {
+        data->state.lastconnect_id = -1;
+        data->state.recent_conn_id = -1;
+      }
+
 #if !defined(CURL_DISABLE_HTTP) && !defined(CURL_DISABLE_COOKIES)
       if(data->share->cookies) {
         /* use shared cookie list, first free own one if any */
