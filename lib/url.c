@@ -1345,7 +1345,8 @@ static bool url_attach_existing(struct Curl_easy *data,
 #ifdef USE_NTLM
   match.want_ntlm_http =
     (data->state.authhost.want & CURLAUTH_NTLM) &&
-    (needle->scheme->protocol & PROTO_FAMILY_HTTP);
+    (needle->scheme->protocol & PROTO_FAMILY_HTTP) &&
+    Curl_auth_allowed_to_host(data);
 #ifndef CURL_DISABLE_PROXY
   match.want_proxy_ntlm_http =
     needle->bits.proxy_user_passwd &&
@@ -1357,7 +1358,8 @@ static bool url_attach_existing(struct Curl_easy *data,
 #if !defined(CURL_DISABLE_HTTP) && defined(USE_SPNEGO)
   match.want_nego_http =
     (data->state.authhost.want & CURLAUTH_NEGOTIATE) &&
-    (needle->scheme->protocol & PROTO_FAMILY_HTTP);
+    (needle->scheme->protocol & PROTO_FAMILY_HTTP) &&
+    Curl_auth_allowed_to_host(data);
 #ifndef CURL_DISABLE_PROXY
   match.want_proxy_nego_http =
     needle->bits.proxy_user_passwd &&
