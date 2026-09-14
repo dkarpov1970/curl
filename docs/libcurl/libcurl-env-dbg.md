@@ -173,3 +173,7 @@ Make a blocking, graceful shutdown of all remaining connections when
 a multi handle is destroyed. This implicitly triggers for easy handles
 that are run via easy_perform. The value of the environment variable
 gives the shutdown timeout in milliseconds.
+
+## `CURL_DBG_MAX_TOTAL_CONNECTIONS`
+
+Set the `max_total_connections` for a `multi` handle.
