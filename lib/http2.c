@@ -769,10 +769,13 @@ static int set_transfer_url(struct Curl_easy *data, bool via_ssl_conn,
   if(uc)
     rc = 4;
 fail:
-  curl_url_cleanup(u);
-  if(rc)
+  if(rc) {
+    curl_url_cleanup(u);
     return rc;
+  }
 
+  DEBUGASSERT(!data->state.uh);
+  data->state.uh = u;
   Curl_bufref_set(&data->state.url, url, 0, curl_free);
   return 0;
 }
