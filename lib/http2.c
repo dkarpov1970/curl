@@ -2256,7 +2256,7 @@ static CURLcode cf_h2_send(struct Curl_cfilter *cf, struct Curl_easy *data,
 
   /* if the stream has been closed in egress handling (nghttp2 does that
    * when it does not like the headers, for example */
-  if(stream && stream->closed) {
+  if(stream && stream->closed && !stream->resp_hds_complete) {
     infof(data, "stream %u closed", stream->id);
     result = CURLE_SEND_ERROR;
     goto out;
