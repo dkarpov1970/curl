@@ -283,6 +283,7 @@ CURLcode Curl_close(struct Curl_easy **datap)
   Curl_safefree(data->state.most_recent_ftp_entrypath);
   Curl_safefree(data->info.contenttype);
   Curl_safefree(data->info.wouldredirect);
+  Curl_safefree(data->info.effective_url);
 
   data_priority_cleanup(data);
 
