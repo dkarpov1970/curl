@@ -95,6 +95,7 @@ static CURLcode tunnel_reinit(struct Curl_cfilter *cf,
   ts->close_connection = FALSE;
   ts->maybe_folded = FALSE;
   ts->leading_unfold = FALSE;
+  ts->chunked_encoding = FALSE;
   return CURLE_OK;
 }
 
