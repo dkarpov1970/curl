@@ -2390,9 +2390,9 @@ static CURLcode is_finished(struct Curl_multi *multi,
            connection */
         streamclose(data->conn, "Aborted by callback");
 
-        /* if not yet in DONE state, go there, otherwise COMPLETED */
-        multistate(data, (data->mstate < MSTATE_DONE) ?
-                   MSTATE_DONE : MSTATE_COMPLETED);
+        /* if not yet in DONE state, go there. */
+        if(data->mstate < MSTATE_DONE)
+          multistate(data, MSTATE_DONE);
         return result;
       }
     }
