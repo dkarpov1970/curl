@@ -2278,10 +2278,14 @@ static CURLcode setopt_cptr(struct Curl_easy *data, CURLoption option,
      * Set what interface or address/hostname to bind the socket to when
      * performing an operation and thus what from-IP your connection will use.
      */
-    return setstropt_interface(ptr,
-                               &s->str[STRING_DEVICE],
-                               &s->str[STRING_INTERFACE],
-                               &s->str[STRING_BINDHOST]);
+    result = setstropt_interface(ptr,
+                                 &s->str[STRING_DEVICE],
+                                 &s->str[STRING_INTERFACE],
+                                 &s->str[STRING_BINDHOST]);
+    /* Remember the full option string for connection reuse matching */
+    if(!result)
+      result = Curl_setstropt(&s->str[STRING_INTERFACE_OPT], ptr);
+    break;
   case CURLOPT_ISSUERCERT:
     /*
      * Set Issuer certificate file
