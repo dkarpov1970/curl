@@ -3211,6 +3211,7 @@ static CURLcode ossl_populate_x509_store(struct Curl_cfilter *cf,
 
 struct ossl_x509_share {
   char *CAfile;         /* CAfile path used to generate X509 store */
+  char *CApath;         /* CApath path used to generate X509 store */
   X509_STORE *store;    /* cached X509 store or NULL if none */
   struct curltime time; /* when the cached store was created */
   BIT(store_is_empty);  /* no certs/paths/blobs are in the store */
@@ -3228,6 +3229,7 @@ static void oss_x509_share_free(void *key, size_t key_len, void *p)
     X509_STORE_free(share->store);
   }
   curlx_free(share->CAfile);
+  curlx_free(share->CApath);
   curlx_free(share);
 }
 
@@ -3254,9 +3256,21 @@ static bool ossl_cached_x509_store_different(struct Curl_cfilter *cf,
     Curl_ssl_cf_get_config(cf, CURL_UNCONST(data));
   if(mb->no_partialchain != ssl_config->no_partialchain)
     return TRUE;
-  if(!mb->CAfile || !conn_config->CAfile)
-    return mb->CAfile != conn_config->CAfile;
-  return strcmp(mb->CAfile, conn_config->CAfile);
+  if(!mb->CAfile || !conn_config->CAfile) {
+    if(mb->CAfile != conn_config->CAfile)
+      return TRUE;
+  }
+  else if(strcmp(mb->CAfile, conn_config->CAfile))
+    return TRUE;
+
+  if(!mb->CApath || !conn_config->CApath) {
+    if(mb->CApath != conn_config->CApath)
+      return TRUE;
+  }
+  else if(strcmp(mb->CApath, conn_config->CApath))
+    return TRUE;
+
+  return FALSE;
 }
 
 static X509_STORE *ossl_get_cached_x509_store(struct Curl_cfilter *cf,
@@ -3315,6 +3329,7 @@ static void ossl_set_cached_x509_store(struct Curl_cfilter *cf,
     char *CAfile = NULL;
     struct ssl_config_data *ssl_config =
       Curl_ssl_cf_get_config(cf, CURL_UNCONST(data));
+    char *CApath = NULL;
 
     if(conn_config->CAfile) {
       CAfile = curlx_strdup(conn_config->CAfile);
@@ -3324,15 +3339,26 @@ static void ossl_set_cached_x509_store(struct Curl_cfilter *cf,
       }
     }
 
+    if(conn_config->CApath) {
+      CApath = curlx_strdup(conn_config->CApath);
+      if(!CApath) {
+        curlx_free(CAfile);
+        X509_STORE_free(store);
+        return;
+      }
+    }
+
     if(share->store) {
       X509_STORE_free(share->store);
       curlx_free(share->CAfile);
+      curlx_free(share->CApath);
     }
 
     share->time = *Curl_pgrs_now(data);
     share->store = store;
     share->store_is_empty = is_empty;
     share->CAfile = CAfile;
+    share->CApath = CApath;
     share->no_partialchain = ssl_config->no_partialchain;
   }
 }
@@ -3347,12 +3373,11 @@ CURLcode Curl_ssl_setup_x509_store(struct Curl_cfilter *cf,
   X509_STORE *cached_store;
   bool cache_criteria_met, is_empty;
 
-  /* Consider the X509 store cacheable if it comes exclusively from a CAfile,
+  /* Consider the X509 store cacheable if it comes from CAfile/CApath,
      or no source is provided and we are falling back to OpenSSL's built-in
      default. */
   cache_criteria_met = (data->set.general_ssl.ca_cache_timeout != 0) &&
     conn_config->verifypeer &&
-    !conn_config->CApath &&
     !conn_config->ca_info_blob &&
     !ssl_config->primary.CRLfile &&
     !ssl_config->native_ca_store;
