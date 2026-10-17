@@ -112,12 +112,18 @@ static CURLcode cw_pause_flush(struct Curl_easy *data,
     while((*plast)->next) /* got to last in list */
       plast = &(*plast)->next;
     if(Curl_bufq_peek(&(*plast)->b, &buf, &blen)) {
+      int wtype = (*plast)->type;
       wlen = (decoding && ((*plast)->type & CLIENTWRITE_BODY)) ?
              CURLMIN(blen, CW_PAUSE_DEC_WRITE_CHUNK) : blen;
-      result = Curl_cwriter_write(data, cw_pause->next, (*plast)->type,
+      /* EOS only goes with the very last piece, same as in cw_pause_write.
+       * The list is newest first: more buffers follow this, the oldest,
+       * one unless it is the head. */
+      if((wlen < Curl_bufq_len(&(*plast)->b)) || (plast != &ctx->buf))
+        wtype &= ~CLIENTWRITE_EOS;
+      result = Curl_cwriter_write(data, cw_pause->next, wtype,
                                   (const char *)buf, wlen);
       CURL_TRC_WRITE(data, "[PAUSE] flushed %zu/%zu bytes, type=%x -> %d",
-                     wlen, ctx->buf_total, (*plast)->type, result);
+                     wlen, ctx->buf_total, wtype, result);
       Curl_bufq_skip(&(*plast)->b, wlen);
       DEBUGASSERT(ctx->buf_total >= wlen);
       ctx->buf_total -= wlen;
