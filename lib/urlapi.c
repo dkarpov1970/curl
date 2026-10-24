@@ -1461,7 +1461,8 @@ static CURLUcode urlget_url(const CURLU *u, char **part, unsigned int flags)
   char portbuf[7];
   if(u->scheme && curl_strequal("file", u->scheme)) {
     url = curl_maprintf("file://%s%s%s%s%s",
-                        u->path, querysep, u->query ? u->query : "",
+                        u->path ? u->path : "/",
+                        querysep, u->query ? u->query : "",
                         fragmentsep, u->fragment ? u->fragment : "");
   }
   else if(!u->host)
