@@ -147,6 +147,9 @@ struct clearurlcase {
 };
 
 static const struct testcase get_parts_list[] ={
+  {"https://[%3A%3A13%2e1%2e68%2e3%2525eth0]:1234",
+   "https | [11] | [12] | [13] | [::13.1.68.3] 25eth0 | 1234 "
+   "| / | [16] | [17]", CURLU_DEFAULT_SCHEME, 0, CURLUE_OK},
   {"curl.se",
    "[10] | [11] | [12] | [13] | curl.se | [15] | / | [16] | [17]",
    CURLU_GUESS_SCHEME, CURLU_NO_GUESS_SCHEME, CURLUE_OK},
