@@ -363,7 +363,8 @@ static size_t vquic_msghdr_get_udp_gro(struct msghdr *msg)
 #if defined(__clang__) && !defined(__GLIBC__)
 #pragma clang diagnostic pop
 #endif
-    if(cmsg->cmsg_level == SOL_UDP && cmsg->cmsg_type == UDP_GRO) {
+    if(cmsg->cmsg_level == SOL_UDP && cmsg->cmsg_type == UDP_GRO &&
+       cmsg->cmsg_len >= CMSG_LEN(sizeof(gso_size))) {
       memcpy(&gso_size, CMSG_DATA(cmsg), sizeof(gso_size));
 
       break;
