@@ -4786,6 +4786,12 @@ CURLcode Curl_ossl_check_peer_cert(struct Curl_cfilter *cf,
   bool sectrust_verified = FALSE;
 #endif
 
+  /* we may have offered a session, but the server decides if it resumes */
+  if(octx->reused_session && !SSL_session_reused(octx->ssl)) {
+    infof(data, "SSL session not resumed by server, doing full checks");
+    octx->reused_session = FALSE;
+  }
+
   if(data->set.ssl.certinfo && !octx->reused_session) {
     /* asked to gather certificate info. Reused sessions do not have cert
        chains */
