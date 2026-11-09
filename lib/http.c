@@ -3051,6 +3051,7 @@ CURLcode Curl_http(struct Curl_easy *data, bool *done)
      previous transfer */
   curlx_dyn_reset(&data->state.headerb);
   data->state.maybe_folded = FALSE;
+  data->state.leading_unfold = FALSE;
 
   if(!data->conn->bits.reuse) {
     result = http_check_new_conn(data);
