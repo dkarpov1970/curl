@@ -2915,7 +2915,9 @@ static CURLcode http_add_hd(struct Curl_easy *data,
 
 #ifndef CURL_DISABLE_PROXY
   case H1_HD_PROXY_AUTH:
-    if(data->state.aptr.proxyuserpwd)
+    /* only to a forwarding proxy: a CONNECT request is not made here */
+    if(data->state.aptr.proxyuserpwd &&
+       conn->bits.httpproxy && !conn->bits.tunnel_proxy)
       result = curlx_dyn_add(req, data->state.aptr.proxyuserpwd);
     break;
 #endif

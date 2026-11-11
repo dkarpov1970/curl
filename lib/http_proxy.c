@@ -268,6 +268,7 @@ out:
     Curl_http_req_free(req);
     req = NULL;
   }
+  Curl_safefree(data->state.aptr.proxyuserpwd); /* not needed anymore */
   curlx_free(authority);
   *preq = req;
   return result;

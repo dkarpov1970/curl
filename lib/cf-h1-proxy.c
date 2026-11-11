@@ -68,6 +68,7 @@ struct h1_tunnel_state {
   BIT(close_connection);
   BIT(maybe_folded);
   BIT(leading_unfold);
+  BIT(using_proxy_auth);
 };
 
 static bool tunnel_is_established(struct h1_tunnel_state *ts)
@@ -170,10 +171,6 @@ static void h1_tunnel_go_state(struct Curl_cfilter *cf,
     /* restore the protocol pointer */
     data->info.httpcode = 0; /* clear it as it might have been used for the
                                 proxy */
-    /* If a proxy-authorization header was used for the proxy, then we should
-       make sure that it is not accidentally used for the document request
-       after we have connected. So let's free and clear it here. */
-    Curl_safefree(data->state.aptr.proxyuserpwd);
     break;
   }
 }
@@ -220,6 +217,8 @@ static CURLcode start_CONNECT(struct Curl_cfilter *cf,
   curlx_dyn_reset(&ts->request_data);
   ts->nsent = 0;
   ts->headerlines = 0;
+  ts->using_proxy_auth =
+    !!Curl_dynhds_get(&req->headers, STRCONST("Proxy-Authorization"));
   http_minor = (cf->conn->http_proxy.proxytype == CURLPROXY_HTTP_1_0) ? 0 : 1;
 
   result = Curl_h1_req_write_head(req, http_minor, &ts->request_data);
@@ -469,7 +468,7 @@ static CURLcode recv_CONNECT_resp(struct Curl_cfilter *cf,
 
     if(!nread) {
       if(data->set.proxyauth && data->state.authproxy.avail &&
-         data->state.aptr.proxyuserpwd) {
+         ts->using_proxy_auth) {
         /* proxy auth was requested and there was proxy auth available,
            then deem this as "mere" proxy disconnect */
         ts->close_connection = TRUE;
@@ -709,7 +708,6 @@ static CURLcode cf_h1_proxy_connect(struct Curl_cfilter *cf,
   result = H1_CONNECT(cf, data, ts);
   if(result)
     goto out;
-  Curl_safefree(data->state.aptr.proxyuserpwd);
 
 out:
   *done = (result == CURLE_OK) && tunnel_is_established(cf->ctx);
