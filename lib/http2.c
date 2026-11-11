@@ -714,6 +714,8 @@ static struct Curl_easy *h2_duphandle(struct Curl_cfilter *cf,
     second->state.priority.weight = data->state.priority.weight;
     if(data->share)
       (void)Curl_share_easy_link(second, data->share);
+    /* Never retry this request should it fail */
+    second->set.never_retry = TRUE;
   }
   return second;
 }
