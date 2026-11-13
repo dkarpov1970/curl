@@ -295,7 +295,7 @@ test3216 test3217 test3218 test3219 test3234 \
 \
 test3300 test3301 \
 \
-test3595 \
+test3595 test3598 \
 \
 test4000 test4001
 
