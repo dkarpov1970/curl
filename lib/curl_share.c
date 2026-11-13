@@ -298,3 +298,22 @@ CURLSHcode Curl_share_unlock(struct Curl_easy *data, curl_lock_data type)
 
   return CURLSHE_OK;
 }
+
+CURLcode Curl_share_easy_unlink(struct Curl_easy *data)
+{
+  if(!data->share)
+    return CURLE_OK;
+  return curl_easy_setopt(data, CURLOPT_SHARE, NULL);
+}
+
+CURLcode Curl_share_easy_link(struct Curl_easy *data,
+                              struct Curl_share *share)
+{
+  if(data->share) {
+    DEBUGASSERT(0);
+    return CURLE_FAILED_INIT;
+  }
+  if(!share)
+    return CURLE_OK;
+  return curl_easy_setopt(data, CURLOPT_SHARE, share);
+}

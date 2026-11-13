@@ -74,4 +74,12 @@ CURLSHcode Curl_share_unlock(struct Curl_easy *data, curl_lock_data type);
                                     ((data)->share->specifier &          \
                                      (1 << CURL_LOCK_DATA_SSL_SESSION)))
 
+/* Link `share` to `data`, which must not have a share yet, and unlink
+ * `data` from its share, if any. Same API as upstream's, which this
+ * release does not have; they go through the CURLOPT_SHARE code in
+ * setopt.c. */
+CURLcode Curl_share_easy_unlink(struct Curl_easy *data);
+CURLcode Curl_share_easy_link(struct Curl_easy *data,
+                              struct Curl_share *share);
+
 #endif /* HEADER_CURL_SHARE_H */
