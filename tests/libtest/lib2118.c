@@ -29,7 +29,7 @@
 
 static CURLcode test_lib2118(const char *URL)
 {
-  CURLcode result;
+  CURLcode result = CURLE_OK;
   CURL *curl;
 
   if(curl_global_init(CURL_GLOBAL_ALL) != CURLE_OK) {
