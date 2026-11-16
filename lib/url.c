@@ -1327,6 +1327,23 @@ static bool url_match_result(bool result, void *userdata)
   return FALSE;
 }
 
+#if defined(USE_NTLM) || \
+  (!defined(CURL_DISABLE_HTTP) && defined(USE_SPNEGO))
+/* TRUE if the transfer may send its credentials to the destination of
+ * `needle`: like Curl_auth_allowed_to_host(), but checked against the
+ * connection being looked for, as the transfer has no connection yet. */
+static bool url_auth_allowed_to_needle(struct Curl_easy *data,
+                                       struct connectdata *needle)
+{
+  return !data->state.this_is_a_follow ||
+         data->set.allow_auth_to_other_hosts ||
+         (data->state.first_host &&
+          curl_strequal(data->state.first_host, needle->host.name) &&
+          (data->state.first_remote_port == needle->remote_port) &&
+          (data->state.first_remote_protocol == needle->scheme->protocol));
+}
+#endif
+
 /*
  * Given a transfer and a prototype connection (needle),
  * find and attach an existing connection that matches.
@@ -1353,7 +1370,7 @@ static bool url_attach_existing(struct Curl_easy *data,
   match.want_ntlm_http =
     (data->state.authhost.want & CURLAUTH_NTLM) &&
     (needle->scheme->protocol & PROTO_FAMILY_HTTP) &&
-    Curl_auth_allowed_to_host(data);
+    url_auth_allowed_to_needle(data, needle);
 #ifndef CURL_DISABLE_PROXY
   match.want_proxy_ntlm_http =
     needle->bits.proxy_user_passwd &&
@@ -1366,7 +1383,7 @@ static bool url_attach_existing(struct Curl_easy *data,
   match.want_nego_http =
     (data->state.authhost.want & CURLAUTH_NEGOTIATE) &&
     (needle->scheme->protocol & PROTO_FAMILY_HTTP) &&
-    Curl_auth_allowed_to_host(data);
+    url_auth_allowed_to_needle(data, needle);
 #ifndef CURL_DISABLE_PROXY
   match.want_proxy_nego_http =
     needle->bits.proxy_user_passwd &&
