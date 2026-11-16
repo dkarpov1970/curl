@@ -27,6 +27,9 @@ Content-Type: text/html
 
 # Client-side
 <client>
+<features>
+netrc
+</features>
 <server>
 http
 </server>

@@ -62,7 +62,7 @@ Proxy-Connection: Keep-Alive
 <protocol crlf="headers">
 </protocol>
 <errorcode>
-7
+56
 </errorcode>
 </verify>
 </testcase>

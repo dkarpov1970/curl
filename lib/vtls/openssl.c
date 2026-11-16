@@ -3793,7 +3793,7 @@ CURLcode Curl_ossl_ctx_init(struct ossl_ctx *octx,
 #ifdef OPENSSL_HAS_PROVIDERS
   if(data->state.libctx)
     /* forbid connection reuse with provider/engine use */
-    connclose(data->conn);
+    connclose(data->conn, "provider in use");
 #endif
 
   if(cb_setup) {
