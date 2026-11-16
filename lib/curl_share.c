@@ -315,5 +315,5 @@ CURLcode Curl_share_easy_link(struct Curl_easy *data,
   }
   if(!share)
     return CURLE_OK;
-  return curl_easy_setopt(data, CURLOPT_SHARE, share);
+  return curl_easy_setopt(data, CURLOPT_SHARE, (CURLSH *)share);
 }
