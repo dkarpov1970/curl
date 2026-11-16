@@ -354,9 +354,9 @@ static bool bad_domain(const char *domain, size_t len)
 static bool invalid_octets(const char *ptr, size_t len)
 {
   const unsigned char *p = (const unsigned char *)ptr;
-  /* Reject all bytes \x01 - \x1f (*except* \x09, TAB) + \x7f */
+  /* Reject all bytes \x01 - \x1f + \x7f */
   while(len && *p) {
-    if(((*p != 9) && (*p < 0x20)) || (*p == 0x7f))
+    if((*p < 0x20) || (*p == 0x7f))
       return TRUE;
     p++;
     len--;
