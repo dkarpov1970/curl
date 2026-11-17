@@ -65,10 +65,15 @@ static int checkparts(CURLU *u, const char *in, const char *wanted,
 
   for(i = 0; parts[i].name; i++) {
     char *p = NULL;
+    char *z = NULL;
     size_t n;
     rc = curl_url_get(u, parts[i].part, &p, getflags);
     if(!rc && p) {
-      curl_msnprintf(bufp, len, "%s%s", buf[0] ? " | " : "", p);
+      if((parts[i].part == CURLUPART_HOST) && (p[0] == '['))
+        /* an IPv6 numerical address host, get the zone */
+        (void)curl_url_get(u, CURLUPART_ZONEID, &z, getflags);
+      curl_msnprintf(bufp, len, "%s%s%s%s", buf[0] ? " | " : "", p,
+                     z ? " " : "", z ? z : "");
     }
     else
       curl_msnprintf(bufp, len, "%s[%d]", buf[0] ? " | " : "", rc);
@@ -77,6 +82,7 @@ static int checkparts(CURLU *u, const char *in, const char *wanted,
     bufp += n;
     len -= n;
     curl_free(p);
+    curl_free(z);
   }
   if(strcmp(buf, wanted)) {
     curl_mfprintf(stderr, "in: %s\nwanted: %s\ngot:    %s\n", in, wanted, buf);
@@ -423,12 +429,12 @@ static const struct testcase get_parts_list[] ={
    "http | [11] | [12] | [13] | [fd00:a41::50] | [15] | / | [16] | [17]",
    CURLU_DEFAULT_SCHEME, 0, CURLUE_OK},
   {"https://[::1%252]:1234",
-   "https | [11] | [12] | [13] | [::1] | 1234 | / | [16] | [17]",
+   "https | [11] | [12] | [13] | [::1] 2 | 1234 | / | [16] | [17]",
    CURLU_DEFAULT_SCHEME, 0, CURLUE_OK},
 
   /* here's "bad" zone id */
   {"https://[fe80::20c:29ff:fe9c:409b%eth0]:1234",
-   "https | [11] | [12] | [13] | [fe80::20c:29ff:fe9c:409b] | 1234 "
+   "https | [11] | [12] | [13] | [fe80::20c:29ff:fe9c:409b] eth0 | 1234 "
    "| / | [16] | [17]",
    CURLU_DEFAULT_SCHEME, 0, CURLUE_OK},
   {"https://127.0.0.1:443",
@@ -669,18 +675,20 @@ static const struct urltestcase get_url_list[] = {
   {"https://[::%25fakeit];80/moo",
    "",
    0, 0, CURLUE_BAD_PORT_NUMBER},
+  /* this release rejects spaces and control bytes anywhere in the URL up
+     front (Curl_junkscan), before the zone id is parsed */
   {"https://[::%25fa keit]:80/moo",
    "",
-   0, 0, CURLUE_BAD_IPV6},
+   0, 0, CURLUE_MALFORMED_INPUT},
   {"https://[::%25fa%\x7fkeit]:80/moo",
    "",
-   0, 0, CURLUE_BAD_IPV6},
+   0, 0, CURLUE_MALFORMED_INPUT},
   {"https://[::%25fa keit]:80/moo",
    "",
    CURLU_ALLOW_SPACE, 0, CURLUE_BAD_IPV6},
   {"https://[::%25fake\tit]:80/moo",
    "",
-   0, 0, CURLUE_BAD_HOSTNAME},
+   0, 0, CURLUE_MALFORMED_INPUT},
   {"https://[fe80::20c:29ff:fe9c:409b]-80/moo",
    "",
    0, 0, CURLUE_BAD_PORT_NUMBER},
