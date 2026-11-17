@@ -21,6 +21,9 @@ http
 <features>
 http
 </features>
+<tool>
+lib%TESTNUMBER
+</tool>
 <name>
 CONNECT_ONLY forgets connection when attaching a shared pool
 </name>
