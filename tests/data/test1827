@@ -38,7 +38,7 @@ http://test.anything.really.com:%TESTNUMBER --proxy %HOSTIP:%HTTPPORT --proxytun
 # Verify data after the test has been "shot"
 <verify>
 <errorcode>
-7
+56
 </errorcode>
 <protocol crlf="headers">
 CONNECT test.anything.really.com:%TESTNUMBER HTTP/1.1

@@ -96,7 +96,7 @@ Proxy-Connection: Keep-Alive
 [DISCONNECT]
 </protocol>
 <errorcode>
-7
+56
 </errorcode>
 </verify>
 </testcase>
